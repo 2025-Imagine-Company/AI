@@ -1,0 +1,23 @@
+# requirements.txt
+
+fastapi
+uvicorn[standard]
+pydantic
+pydantic-settings
+httpx
+python-dotenv
+boto3
+requests
+
+# Audio processing
+numpy
+scipy
+librosa
+soundfile
+
+# AI Model Libraries
+TTS
+torch
+torchaudio
+transformers
+speechbrain

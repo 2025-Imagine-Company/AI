@@ -1,0 +1,15 @@
+# Visual Studio Code
+.vscode/
+
+# 운영체제 파일
+.DS_Store
+Thumbs.db
+
+# 바로가기 파일 무시
+*.lnk
+
+# 엑셀 파일 무시
+*.xlsx
+
+# 개인 정보 폴더 무시
+privacy/
