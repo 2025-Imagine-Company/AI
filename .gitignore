@@ -13,5 +13,6 @@ Thumbs.db
 
 # 개인 정보 폴더 무시
 privacy/
-
+.env
+.env.example
 .claude
