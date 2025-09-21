@@ -1,18 +1,59 @@
-# Visual Studio Code
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
 .vscode/
+.idea/
+*.swp
+*.swo
+*~
 
-# 운영체제 파일
+# OS
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
-
-# 바로가기 파일 무시
 *.lnk
 
-# 엑셀 파일 무시
-*.xlsx
+# Project specific
+/data/
+tmp_models/
+*.log
 
-# 개인 정보 폴더 무시
+# Personal/sensitive files
 privacy/
-.env
-.env.example
-.claude
+*.xlsx
+*.pdf
+
+# Keep .env.example for documentation
+!.env.example
+
+# Claude Code settings (keep local settings)
+.claude/
