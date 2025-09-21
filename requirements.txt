@@ -1,5 +1,11 @@
 # requirements.txt
 
+# 1. PyTorch를 CPU 전용 버전으로 설치하도록 변경 (가장 큰 용량 절감)
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+torchaudio
+
+# --- 기존 라이브러리는 그대로 둡니다 ---
 fastapi
 uvicorn[standard]
 pydantic
@@ -17,7 +23,5 @@ soundfile
 
 # AI Model Libraries
 TTS
-torch
-torchaudio
 transformers
 speechbrain

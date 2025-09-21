@@ -1,21 +1,63 @@
-FROM python:3.11-slim
+# --- 1. 빌드 스테이지 ---
+# 라이브러리를 설치할 빌드 전용 환경을 만듭니다.
+FROM python:3.11-slim as builder
 
-# 시스템 라이브러리 (오디오/코덱)
+WORKDIR /app
+
+# 시스템 라이브러리 설치
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg libsndfile1 git && \
     rm -rf /var/lib/apt/lists/*
 
+# numba 캐시 폴더 지정 (이전 에러 해결)
+ENV NUMBA_CACHE_DIR=/tmp
+# pip 캐시 비활성화
+ENV PIP_NO_CACHE_DIR=off
+
+# requirements.txt를 먼저 복사하여 Docker 캐시 활용 극대화
+COPY requirements.txt .
+
+# 라이브러리 설치
+# --prefix를 사용해 특정 폴더에 라이브러리를 설치합니다.
+RUN pip install --prefix=/install -r requirements.txt
+
+
+# --- 2. 최종 스테이지 ---
+# 실제 서버를 실행할 최종 이미지를 만듭니다.
+FROM python:3.11-slim
+
 WORKDIR /app
+
+# 시스템 라이브러리 (healthcheck용 curl만 추가)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl && \
+    rm -rf /var/lib/apt/lists/*
+
+# 환경 변수 설정
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+ENV NUMBA_CACHE_DIR=/tmp
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# 비-루트 사용자 생성
+RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
 
-# 성능/캐시: 모델 파일이 컨테이너마다 다시 받아지는 걸 줄이고 싶으면 볼륨 마운트 권장
-RUN mkdir -p /data && chmod -R 777 /data
+# 빌드 스테이지에서 설치한 라이브러리만 복사
+COPY --from=builder /install /usr/local
 
+# 애플리케이션 코드 복사
 COPY app app
 
+# 디렉토리 소유권 변경
+RUN mkdir -p /data && chown -R appuser:appgroup /data
+RUN chown -R appuser:appgroup /app
+
+# 비-루트 사용자로 전환
+USER appuser
+
 EXPOSE 8081
+
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+  CMD curl -f http://localhost:8081/docs || exit 1
+
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8081"]

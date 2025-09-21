@@ -1,4 +1,4 @@
-import os, time, uuid, threading
+import time, uuid, threading
 from typing import List, Optional
 from pathlib import Path
 from fastapi import APIRouter, Depends, HTTPException
@@ -10,6 +10,8 @@ from ..deps import require_xauth
 from ..audio import download_files, preprocess_to_16k_mono, compute_speaker_embedding, save_model_npz
 from ..tts_preview import synth_preview
 from ..storage import upload_to_s3, public_url
+from ..core.config import settings
+from ..deps import require_xauth
 
 # 💡 수정: 백엔드 AiService.java의 호출 경로에 맞게 prefix를 "/train"으로 변경
 router = APIRouter(tags=["train"])
@@ -36,11 +38,11 @@ def _train_worker(job_id: str, voice_file_id: str, voice_file_url: str, user_id:
     """
     1) 다운로드 -> 2) 전처리 -> 3) 임베딩 추출(=학습) -> 4) 모델 저장 -> 5) 프리뷰 생성 -> 6) S3 업로드 -> 7) 콜백
     """
-    cb_url = os.getenv("SPRING_CALLBACK_URL")  # Spring Boot 콜백 URL
-    secret = os.getenv("X_AUTH_SHARED_SECRET", "CHANGE_ME")
-    timeout = int(os.getenv("CALLBACK_TIMEOUT", "10"))
-    b_models = os.getenv("S3_BUCKET_MODELS", "audion-models")
-    b_preview = os.getenv("S3_BUCKET_PREVIEW", "audion-preview")
+    cb_url = settings.SPRING_CALLBACK_URL
+    secret = settings.X_AUTH_SHARED_SECRET
+    timeout = settings.CALLBACK_TIMEOUT
+    b_models = settings.S3_BUCKET_MODELS
+    b_preview = settings.S3_BUCKET_PREVIEW
 
     # 디렉터리 셋업
     model_dir = DATA_ROOT / "models" / voice_file_id
