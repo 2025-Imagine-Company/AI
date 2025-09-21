@@ -11,7 +11,8 @@ from ..audio import download_files, preprocess_to_16k_mono, compute_speaker_embe
 from ..tts_preview import synth_preview
 from ..storage import upload_to_s3, public_url
 
-router = APIRouter(prefix="/ai/train", tags=["train"])
+# 💡 수정: 백엔드 AiService.java의 호출 경로에 맞게 prefix를 "/train"으로 변경
+router = APIRouter(tags=["train"])
 
 # In-memory job store
 JOBS: dict[str, dict] = {}  # job_id -> info
@@ -107,7 +108,8 @@ def _train_worker(job_id: str, voice_file_id: str, voice_file_url: str, user_id:
         # Spring Boot 콜백 (Java ModelTrainCompleteCallbackRequest 스펙에 맞춤)
         if cb_url:
             payload = {
-                "modelId": voice_file_id,  # Java에서 modelId로 받음
+                # 💡 수정: 백엔드가 VoiceFile ID를 modelId 필드로 받으므로, voice_file_id를 전달
+                "modelId": voice_file_id,
                 "status": "DONE",
                 "modelPath": model_s3_uri,
                 "previewUrl": preview_public,
@@ -143,6 +145,7 @@ def _train_worker(job_id: str, voice_file_id: str, voice_file_url: str, user_id:
         # 실패 콜백
         if cb_url:
             payload = {
+                # 💡 수정: 실패 시에도 voice_file_id를 modelId로 전달
                 "modelId": voice_file_id,
                 "status": "ERROR",
                 "errorMessage": error_msg,
@@ -158,8 +161,7 @@ def _train_worker(job_id: str, voice_file_id: str, voice_file_url: str, user_id:
             except Exception:
                 pass  # 콜백 실패해도 조용히 넘어감
 
-# Java AiService가 호출하는 엔드포인트 (/train)
-@router.post("/start", response_model=TrainStartResp)
+@router.post("/train", response_model=TrainStartResp)
 async def start_training(req: TrainStartReq, _: bool = Depends(require_xauth)):
     """Java AiService와 호환되는 학습 시작 엔드포인트"""
     

@@ -57,3 +57,6 @@ privacy/
 
 # Claude Code settings (keep local settings)
 .claude/
+
+__pycache__/
+*.pyc

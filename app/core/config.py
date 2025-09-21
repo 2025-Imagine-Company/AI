@@ -3,12 +3,11 @@ from pydantic import Field
 
 class Settings(BaseSettings):
     # Spring 서버와 통신하기 위한 비밀 키 (application.yml의 xauth.secret과 일치해야 함)
-    XAUTH_SECRET: str = Field(default="your-super-strong-xauth-secret-key")
-    X_AUTH_SHARED_SECRET: str = Field(default="CHANGE_ME")
+    X_AUTH_SHARED_SECRET: str = Field(default="your-super-strong-xauth-secret-key")
 
     # AI 서버가 콜백을 보낼 Spring 서버의 주소
     SPRING_SERVER_URL: str = Field(default="http://localhost:8080")
-    SPRING_CALLBACK_URL: str = Field(default="http://localhost:8080/api/v1/ai/callback")
+    SPRING_CALLBACK_URL: str = Field(default="http://localhost:8080/model/callback")
     
     # AWS 설정
     AWS_S3_BUCKET: str = Field(default="your-audion-bucket-name")
