@@ -34,8 +34,8 @@ WORKDIR /app
 # 시스템 라이브러리 (runtime용 LAPACK/BLAS 및 curl)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
-    liblapack3 libblas3 \
-    su-exec && \
+    ffmpeg libsndfile1 \
+    liblapack3 libblas3 && \
     rm -rf /var/lib/apt/lists/*
 
 # 환경 변수 설정
@@ -67,10 +67,8 @@ RUN echo '#!/bin/bash\n\
 mkdir -p /data/models /data/raw /data/prep /data/out\n\
 chown -R appuser:appgroup /data\n\
 chmod -R 755 /data\n\
-exec su-exec appuser "$@"' > /entrypoint.sh && \
+exec "$@"' > /entrypoint.sh && \
     chmod +x /entrypoint.sh
-
-USER appuser
 
 EXPOSE 8081
 
@@ -79,4 +77,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
   CMD curl -f http://localhost:8081/docs || exit 1
 
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8081"]
+CMD ["su", "appuser", "-c", "uvicorn app.main:app --host 0.0.0.0 --port 8081"]
