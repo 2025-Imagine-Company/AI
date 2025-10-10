@@ -7,9 +7,11 @@ WORKDIR /app
 # 시스템 라이브러리 설치 (SciPy 빌드를 위한 LAPACK/BLAS 포함)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg libsndfile1 git \
-    gcc gfortran \
-    liblapack-dev libblas-dev \
-    pkg-config && \
+    gcc gfortran g++ \
+    liblapack-dev libblas-dev libopenblas-dev \
+    pkg-config \
+    python3-dev \
+    build-essential && \
     rm -rf /var/lib/apt/lists/*
 
 # numba 캐시 폴더 지정 (이전 에러 해결)
@@ -20,9 +22,10 @@ ENV PIP_NO_CACHE_DIR=off
 # requirements.txt를 먼저 복사하여 Docker 캐시 활용 극대화
 COPY requirements.txt .
 
-# 라이브러리 설치
+# pip 업그레이드 및 라이브러리 설치
 # --prefix를 사용해 특정 폴더에 라이브러리를 설치합니다.
-RUN pip install --prefix=/install -r requirements.txt
+RUN pip install --upgrade pip && \
+    pip install --prefix=/install -r requirements.txt
 
 
 # --- 2. 최종 스테이지 ---
@@ -44,7 +47,7 @@ ENV PYTHONUNBUFFERED=1
 ENV NUMBA_CACHE_DIR=/tmp
 
 # 비-루트 사용자 생성
-RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
+RUN addgroup --system appgroup && adduser --system --ingroup appgroup --home /app --shell /bin/bash appuser
 
 # 빌드 스테이지에서 설치한 라이브러리만 복사
 COPY --from=builder /install /usr/local
@@ -77,4 +80,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
   CMD curl -f http://localhost:8081/docs || exit 1
 
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["su", "appuser", "-c", "uvicorn app.main:app --host 0.0.0.0 --port 8081"]
+CMD ["su", "-", "appuser", "-c", "uvicorn app.main:app --host 0.0.0.0 --port 8081"]
