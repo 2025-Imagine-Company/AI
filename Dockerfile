@@ -4,9 +4,12 @@ FROM python:3.11-slim as builder
 
 WORKDIR /app
 
-# 시스템 라이브러리 설치
+# 시스템 라이브러리 설치 (SciPy 빌드를 위한 LAPACK/BLAS 포함)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ffmpeg libsndfile1 git && \
+    ffmpeg libsndfile1 git \
+    gcc gfortran \
+    liblapack-dev libblas-dev \
+    pkg-config && \
     rm -rf /var/lib/apt/lists/*
 
 # numba 캐시 폴더 지정 (이전 에러 해결)
@@ -28,9 +31,11 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# 시스템 라이브러리 (healthcheck용 curl만 추가)
+# 시스템 라이브러리 (runtime용 LAPACK/BLAS 및 curl)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl && \
+    curl \
+    liblapack3 libblas3 \
+    su-exec && \
     rm -rf /var/lib/apt/lists/*
 
 # 환경 변수 설정
@@ -47,11 +52,24 @@ COPY --from=builder /install /usr/local
 # 애플리케이션 코드 복사
 COPY app app
 
-# 디렉토리 소유권 변경
-RUN mkdir -p /data && chown -R appuser:appgroup /data
-RUN chown -R appuser:appgroup /app
+# 디렉토리 생성 및 소유권 변경 (root로 실행)
+RUN mkdir -p /data/models /data/raw /data/prep /data/out && \
+    chown -R appuser:appgroup /data && \
+    chmod -R 755 /data && \
+    chown -R appuser:appgroup /app
 
 # 비-루트 사용자로 전환
+USER appuser
+
+# 런타임에 권한을 다시 확인하는 엔트리포인트 스크립트 생성
+USER root
+RUN echo '#!/bin/bash\n\
+mkdir -p /data/models /data/raw /data/prep /data/out\n\
+chown -R appuser:appgroup /data\n\
+chmod -R 755 /data\n\
+exec su-exec appuser "$@"' > /entrypoint.sh && \
+    chmod +x /entrypoint.sh
+
 USER appuser
 
 EXPOSE 8081
@@ -60,4 +78,5 @@ EXPOSE 8081
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
   CMD curl -f http://localhost:8081/docs || exit 1
 
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8081"]
