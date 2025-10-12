@@ -1,12 +1,6 @@
-from dotenv import load_dotenv, find_dotenv
 from fastapi import FastAPI
 from .routers import train
-
-from dotenv import load_dotenv, find_dotenv
-load_dotenv(find_dotenv(), override=True)
-
-from app.core.config import Settings
-settings = Settings()
+from .core.config import settings  # 이미 생성된 settings 사용
 
 def create_app():
     app = FastAPI(title="AudIon AI Server", version="0.1.0")

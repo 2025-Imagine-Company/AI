@@ -1,11 +1,15 @@
 from typing import Optional
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
+from dotenv import load_dotenv
+
+# .env 파일 로드
+load_dotenv()
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(case_sensitive=True)
     
-    # Spring 서버와 통신하기 위한 비밀 키 (application.yml의 xauth.secret과 일치해야 함)
+    # Spring 서버와 통신하기 위한 비밀 키
     X_AUTH_SHARED_SECRET: str
 
     # AI 서버가 콜백을 보낼 Spring 서버의 주소
