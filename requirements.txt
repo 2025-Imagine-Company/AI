@@ -22,6 +22,6 @@ librosa
 soundfile
 
 # AI Model Libraries
-TTS==0.22.0
+TTS==0.15.6
 transformers==4.31.0
 speechbrain
