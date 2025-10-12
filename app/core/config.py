@@ -15,6 +15,8 @@ class Settings(BaseSettings):
     AWS_DEFAULT_REGION: str 
     S3_BUCKET_MODELS: str 
     S3_BUCKET_PREVIEW: str 
+    AWS_ACCESS_KEY_ID: Optional[str] = None
+    AWS_SECRET_ACCESS_KEY: Optional[str] = None
     
     # CDN/Public URL 설정
     PUBLIC_BASE_URL: str = Field(default="")
