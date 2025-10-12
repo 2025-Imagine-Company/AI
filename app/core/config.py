@@ -1,5 +1,6 @@
 from pydantic_settings import BaseSettings
 from pydantic import Field
+from typing import Optional
 
 class Settings(BaseSettings):
     model_config = {"env_file": [".env", "../.env"], "env_file_encoding": "utf-8"}
