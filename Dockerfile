@@ -54,6 +54,7 @@ COPY --from=builder /install /usr/local
 
 # 애플리케이션 코드 복사
 COPY app app
+COPY .env .
 
 # 디렉토리 생성 및 소유권 변경 (root로 실행)
 RUN mkdir -p /data/models /data/raw /data/prep /data/out && \
