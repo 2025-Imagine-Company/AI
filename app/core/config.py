@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings
 from pydantic import Field
 
 class Settings(BaseSettings):
-    model_config = {"env_file": ".env"}
+    model_config = {"env_file": [".env", "../.env"], "env_file_encoding": "utf-8"}
     # Spring 서버와 통신하기 위한 비밀 키 (application.yml의 xauth.secret과 일치해야 함)
     X_AUTH_SHARED_SECRET: str = Field(default="your-super-strong-xauth-secret-key")
 
