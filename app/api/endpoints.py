@@ -38,6 +38,15 @@ def _train_worker(job_id: str, voice_file_id: str, voice_file_url: str, user_id:
     """
     1) 다운로드 -> 2) 전처리 -> 3) 임베딩 추출(=학습) -> 4) 모델 저장 -> 5) 프리뷰 생성 -> 6) S3 업로드 -> 7) 콜백
     """
+    import os
+    import time
+    import requests
+
+    cb_url = os.getenv("SPRING_CALLBACK_URL")  # Spring Boot 콜백 URL
+    secret = os.getenv("X_AUTH_SHARED_SECRET", "CHANGE_ME")
+    timeout = int(os.getenv("CALLBACK_TIMEOUT", "10"))
+
+    
     cb_url = settings.SPRING_CALLBACK_URL
     secret = settings.X_AUTH_SHARED_SECRET
     timeout = settings.CALLBACK_TIMEOUT
