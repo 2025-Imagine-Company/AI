@@ -2,6 +2,9 @@ import os
 from pathlib import Path
 from TTS.api import TTS
 
+# Set the environment variable to agree to the Coqui TTS license
+os.environ["COQUI_TOS_AGREED"] = "1"
+
 # 첫 로드가 무거우므로, 프로세스 단위로 1회만 로딩
 _tts_singleton = None
 
