@@ -3,14 +3,22 @@ from pathlib import Path
 from TTS.api import TTS
 import torch
 from TTS.tts.configs.xtts_config import XttsConfig
-# Import the new class that needs to be allowlisted
+# Import the classes that need to be allowlisted
 from TTS.tts.models.xtts import XttsAudioConfig
+try:
+    from TTS.tts.models.xtts import Xtts
+    from TTS.tts.layers.xtts.gpt import GPT
+    from TTS.tts.layers.xtts.hifigan_decoder import HifiDecoder
+    from TTS.vocoder.models.hifigan import HifiganConfig
+    xtts_classes = [Xtts, GPT, HifiDecoder, HifiganConfig]
+except ImportError:
+    xtts_classes = []
 
 # Add ALL necessary classes to the list of safe globals for torch.load
 torch.serialization.add_safe_globals([
     XttsConfig,
     XttsAudioConfig
-])
+] + xtts_classes)
 
 # Set the environment variable to agree to the Coqui TTS license
 os.environ["COQUI_TOS_AGREED"] = "1"
