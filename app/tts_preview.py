@@ -5,6 +5,7 @@ import torch
 from TTS.tts.configs.xtts_config import XttsConfig
 # Import the classes that need to be allowlisted
 from TTS.tts.models.xtts import XttsAudioConfig
+from TTS.config.shared_configs import BaseDatasetConfig
 try:
     from TTS.tts.models.xtts import Xtts
     from TTS.tts.layers.xtts.gpt import GPT
@@ -17,7 +18,8 @@ except ImportError:
 # Add ALL necessary classes to the list of safe globals for torch.load
 torch.serialization.add_safe_globals([
     XttsConfig,
-    XttsAudioConfig
+    XttsAudioConfig,
+    BaseDatasetConfig
 ] + xtts_classes)
 
 # Set the environment variable to agree to the Coqui TTS license
