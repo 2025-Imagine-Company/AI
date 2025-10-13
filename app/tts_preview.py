@@ -1,6 +1,12 @@
 import os
 from pathlib import Path
 from TTS.api import TTS
+import torch
+from TTS.tts.configs.xtts_config import XttsConfig
+
+# Add the XttsConfig class to the list of safe globals for torch.load
+# This is required due to a security update in newer PyTorch versions.
+torch.serialization.add_safe_globals([XttsConfig])
 
 # Set the environment variable to agree to the Coqui TTS license
 os.environ["COQUI_TOS_AGREED"] = "1"
