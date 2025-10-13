@@ -14,8 +14,7 @@ def upload_to_s3(local: Path, bucket: str, key: str, public: bool = True) -> str
     ct, _ = mimetypes.guess_type(str(local))
     extra = {"ContentType": ct or "application/octet-stream"}
     s3().upload_file(str(local), bucket, key, ExtraArgs=extra)
-    if public:
-        s3().put_object_acl(Bucket=bucket, Key=key, ACL="public-read")
+    # Note: ACL operations removed - bucket should have public read policy configured instead
     return f"s3://{bucket}/{key}"
 
 def public_url(bucket: str, key: str) -> str:
