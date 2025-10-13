@@ -4,7 +4,7 @@ from TTS.api import TTS
 import torch
 from TTS.tts.configs.xtts_config import XttsConfig
 # Import the classes that need to be allowlisted
-from TTS.tts.models.xtts import XttsAudioConfig
+from TTS.tts.models.xtts import XttsAudioConfig, XttsArgs
 from TTS.config.shared_configs import BaseDatasetConfig
 try:
     from TTS.tts.models.xtts import Xtts
@@ -19,6 +19,7 @@ except ImportError:
 torch.serialization.add_safe_globals([
     XttsConfig,
     XttsAudioConfig,
+    XttsArgs,
     BaseDatasetConfig
 ] + xtts_classes)
 
